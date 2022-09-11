@@ -9,14 +9,72 @@ import {
 
 const skip = Symbol("skip this update");
 
+// deno-lint-ignore ban-types
+type ResponseObject = string | number | boolean | object;
 interface Storage {
   write(update: Update): Promise<void>;
+  read(query: Query, projection: string[]): Promise<ResponseObject[]>;
+  count(query: Query): Promise<number>;
 }
+interface Query {
+  disjunct: Conjunction[];
+  offset: number;
+  limit: number;
+}
+type Conjunction = Literal[];
+interface Literal {
+  path: string[];
+  operator: Operator;
+}
+type Operator = NumberOperator | StringOperator | { op: "exists" };
+type NumberOperator =
+  | { op: "eq"; val: number }
+  | { op: "lt"; val: number }
+  | { op: "gt"; val: number };
+type StringOperator =
+  | { op: "eq-str"; val: string }
+  | { op: "sw"; val: string };
 
+const data: Update[] = [];
 const dummyStorage: Storage = {
   write(update) {
     console.log("writing update", update.update_id);
     return Promise.resolve();
+  },
+  read(query, projection) {
+    return Promise.resolve(
+      data.filter((update) =>
+        query.disjunct.some((conj) =>
+          conj.every((lit) => {
+            let obj: any = update;
+            for (const p of lit.path) {
+              obj = obj[p];
+              if (obj == null) return false;
+            }
+            switch (lit.operator.op) {
+              case "eq":
+              case "eq-str":
+                return obj === lit.operator.val;
+              case "exists":
+                return !!obj;
+              case "gt":
+                return obj > lit.operator.val;
+              case "lt":
+                return obj < lit.operator.val;
+              case "sw":
+                return String(obj).startsWith(lit.operator.val);
+            }
+          })
+        )
+      ).map((update) => {
+        let res: any = update;
+        for (const p of projection) res = res[p] ?? {};
+        return res;
+      }),
+    );
+  },
+  async count(query: Query) {
+    return (await this.read(query, [])).length;
   },
 };
 
@@ -77,7 +135,7 @@ type ObjectSelector<R, T> = SubSelector<R, T> & {
 };
 
 export interface HistoryOptions {
-  storage: any; // TODO integrate with storages
+  storage: Storage;
 }
 
 export function history<C extends Context>(): MiddlewareFn<C & HistoryFlavor> {
