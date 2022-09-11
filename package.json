@@ -1,0 +1,44 @@
+{
+  "name": "@grammyjs/history",
+  "description": "History plugin for grammY",
+  "version": "0.1.0",
+  "author": "KnorpelSenf",
+  "license": "MIT",
+  "engines": {
+    "node": "^12.20.0 || >=14.13.1"
+  },
+  "homepage": "https://grammy.dev/plugins/history.html",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grammyjs/history.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grammyjs/history/issues"
+  },
+  "scripts": {
+    "build": "deno2node tsconfig.json",
+    "format": "deno fmt --config deno.json",
+    "lint": "deno lint --config deno.json"
+  },
+  "peerDependencies": {
+    "grammy": "^1.3.0"
+  },
+  "devDependencies": {
+    "deno2node": "1.4.0"
+  },
+  "files": [
+    "out/"
+  ],
+  "main": "out/mod.js",
+  "type": "commonjs",
+  "exports": {
+    ".": "./out/mod.js"
+  },
+  "keywords": [
+    "bot",
+    "middleware",
+    "grammy",
+    "history",
+    "storage"
+  ]
+}
