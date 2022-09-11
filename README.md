@@ -1,37 +1,18 @@
-# Hydration plugin for grammY
+# History Plugin
 
-Please confer the [official documentation](https://grammy.dev/plugins/hydrate.html) for this plugin to learn more about this plugin, including about its **Installation**.
+> MVP. EXPERIMENTAL. DO NOT USE. Does not work yet.
 
-Here is a brief description, though:
-This plugin installs useful methods on two types of objects, namely
+Telegram does not store the chat history for your bot.
+This plugin does.
 
-1. the results of API calls, and
-2. the objects on the context object `ctx`.
+If you install this plugin, it will essentially store all incoming updates in a database.
+In turn, it lets you derive insights:
 
-The purpose of this plugin is best illustrated by an example.
+- read the chat history
+- count users
+- see common groups with you users
+- track usernames
+- get message edit history
+- see virtually anything else that Telegram ever told you
 
-**WITHOUT** this plugin:
-
-```ts
-bot.on(":photo", async (ctx) => {
-  const statusMessage = await ctx.reply("Processing your image, please wait");
-  await doWork(); // some long image processing
-  await ctx.api.deleteMessage(statusMessage.message_id);
-});
-bot.on("callback_query", async (ctx) => {
-  await ctx.answerCallbackQuery();
-});
-```
-
-**WITH** this plugin:
-
-```ts
-bot.on(":photo", async (ctx) => {
-  const statusMessage = await ctx.reply("Processing your image, please wait");
-  await doWork(); // some long image processing
-  await statusMessage.delete(); // so easy!
-});
-bot.on("callback_query", async (ctx) => {
-  await ctx.callbackQuery.answer(); // this works now, too
-});
-```
+See `example.ts` for a short example code snippet of how this plugin will work.
